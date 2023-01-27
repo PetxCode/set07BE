@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const streamifier = require("streamifier");
 const jwt = require("jsonwebtoken");
 const userModel = require("../model/userModel");
 
@@ -48,8 +49,9 @@ const deleteUser = async (req, res) => {
 const updateUserImage = async (req, res) => {
   try {
     const pixID = await userModel.findById(req.params.id);
+    console.log(pixID);
 
-    if (pixID) {
+    if (pixID.avatarID) {
       await cloudinary.uploader.destroy(pixID.avatarID);
 
       let streamUpload = (req) => {
@@ -70,7 +72,38 @@ const updateUserImage = async (req, res) => {
 
       const image = await streamUpload(req);
 
-      // const image = await cloudinary.uploader.upload(req.file.path);
+      console.log(image);
+
+      const viewUser = await userModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          avatar: image.secure_url,
+          avatarID: image.public_id,
+        },
+        { new: true }
+      );
+      res.status(200).json({
+        message: "user data updated",
+        data: viewUser,
+      });
+    } else {
+      let streamUpload = (req) => {
+        return new Promise(async (resolve, reject) => {
+          let stream = await cloudinary.uploader.upload_stream(
+            (error, result) => {
+              if (result) {
+                return resolve(result);
+              } else {
+                return reject(error);
+              }
+            }
+          );
+
+          streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+      };
+
+      const image = await streamUpload(req);
 
       const viewUser = await userModel.findByIdAndUpdate(
         req.params.id,
@@ -86,7 +119,7 @@ const updateUserImage = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(404).json({ message: error });
   }
 };
 

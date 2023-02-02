@@ -217,7 +217,7 @@ const createUser = async (req, res) => {
     const token = crypto.randomBytes(2).toString("hex");
     const accessToken = jwt.sign({ token }, "ThisisOneChurchProject");
 
-    if (code === "CodeLab@2022") {
+    if (code === "CodeLab@2023") {
       const user = await userModel.create({
         code,
         email,

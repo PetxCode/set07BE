@@ -13,7 +13,7 @@ const oAuth = new google.auth.OAuth2(GOOGLE_ID, GOOGLE_SECRET, GOOGLE_REDIRECT);
 oAuth.setCredentials({ refresh_token: GOOGLE_REFRESHTOKEN });
 
 // const url = "http://localhost:3000";
-const url = "https://codelab-student.web.app";
+const url = "https://codelab-student07.web.app";
 const server = "https://studentbe1.herokuapp.com";
 
 const verifiedUser = async (email, user, value, token) => {
